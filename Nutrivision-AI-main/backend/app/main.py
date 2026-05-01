@@ -50,7 +50,8 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://nutrivision-app-blue.vercel.app",  # Your Live Frontend
+        "https://nutrivision-app-blue.vercel.app",  # Old Live Frontend
+        "https://nutrivision-ai-g.vercel.app",      # New Live Frontend
         "http://localhost:5173",                    # Vite dev server
         "http://localhost:3000",                    # Alternative dev server
     ],
