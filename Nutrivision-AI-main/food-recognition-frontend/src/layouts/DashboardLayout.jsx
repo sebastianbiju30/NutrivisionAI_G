@@ -2,6 +2,24 @@ import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate, Navigate } from 'react-router-dom'; 
 import { LayoutDashboard, ScanLine, ChefHat, History, User, LogOut, Wand2, Users, UtensilsCrossed, Menu, X } from 'lucide-react';
 import { useUser } from '../context/UserContext'; 
+// CLEANED UP: The reusable template for links
+const NavItem = ({ to, icon: Icon, label, end = false, onClick }) => (
+  <NavLink 
+    to={to} 
+    end={end} 
+    onClick={onClick} // Close menu on click on mobile
+    className={({ isActive }) => `
+      flex items-center gap-3 px-4 py-3 rounded-xl transition-all mb-1 font-medium
+      ${isActive 
+        ? 'bg-brand-green/10 text-brand-green shadow-[inset_3px_0_0_0_#10b981]' 
+        : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5'
+      }
+    `}
+  >
+    <Icon size={20} />
+    <span>{label}</span>
+  </NavLink>
+);
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
@@ -14,25 +32,6 @@ export default function DashboardLayout() {
 
   // Extra safety check so React doesn't crash on name parsing
   const initials = user?.name && user.name.length > 0 ? user.name[0].toUpperCase() : 'U';
-
-  // CLEANED UP: The reusable template for links
-  const NavItem = ({ to, icon: Icon, label, end = false }) => (
-    <NavLink 
-      to={to} 
-      end={end} 
-      onClick={() => setIsMobileMenuOpen(false)} // Close menu on click on mobile
-      className={({ isActive }) => `
-        flex items-center gap-3 px-4 py-3 rounded-xl transition-all mb-1 font-medium
-        ${isActive 
-          ? 'bg-brand-green/10 text-brand-green shadow-[inset_3px_0_0_0_#10b981]' 
-          : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5'
-        }
-      `}
-    >
-      <Icon size={20} />
-      <span>{label}</span>
-    </NavLink>
-  );
 
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-dark-bg text-gray-900 dark:text-white font-sans transition-colors duration-300">
