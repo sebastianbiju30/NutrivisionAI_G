@@ -31,7 +31,10 @@ class AuthService:
             password = password.get_secret_value()
         
         pw_str = str(password).strip()
-        safe_password = pw_str[:72]
+        
+        # Bcrypt has a strict 72-byte limit. 
+        # Truncate by bytes, not characters, to handle multi-byte characters safely.
+        safe_password = pw_str.encode('utf-8')[:70].decode('utf-8', 'ignore')
 
         if len(safe_password) < 8:
             raise HTTPException(
