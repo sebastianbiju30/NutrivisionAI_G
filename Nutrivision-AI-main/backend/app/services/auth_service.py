@@ -26,39 +26,41 @@ class AuthService:
     def hash_password(password) -> str:
         """
         Hash a password safely with a 72-byte limit for bcrypt.
+        We pre-hash with SHA-256 to ensure the length is always exactly 64 bytes
+        and to avoid any potential null-byte injection vulnerabilities.
         """
+        import hashlib
         if hasattr(password, "get_secret_value"):
             password = password.get_secret_value()
         
         pw_str = str(password).strip()
         
-        # Bcrypt has a strict 72-byte limit. 
-        # Truncate by bytes, not characters, to handle multi-byte characters safely.
-        safe_password = pw_str.encode('utf-8')[:70].decode('utf-8', 'ignore')
-
-        if len(safe_password) < 8:
+        if len(pw_str) < 8:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Password must be at least 8 characters"
             )
-
-        return pwd_context.hash(safe_password)
+            
+        pre_hashed = hashlib.sha256(pw_str.encode('utf-8')).hexdigest()
+        return pwd_context.hash(pre_hashed)
 
     @staticmethod
     def verify_password(plain_password, hashed_password: str) -> bool:
         """
-        Verify a plain text password against its hash.
+        Verify a plain text password against its hash using SHA-256 pre-hashing.
         """
+        import hashlib
         if hasattr(plain_password, "get_secret_value"):
             plain_password = plain_password.get_secret_value()
 
         if isinstance(plain_password, bytes):
             plain_password = plain_password.decode("utf-8", errors="ignore")
 
-        plain_password = str(plain_password)[:72]
+        pw_str = str(plain_password).strip()
+        pre_hashed = hashlib.sha256(pw_str.encode('utf-8')).hexdigest()
 
         try:
-            return pwd_context.verify(plain_password, hashed_password)
+            return pwd_context.verify(pre_hashed, hashed_password)
         except Exception:
             return False
 
